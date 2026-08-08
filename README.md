@@ -115,8 +115,24 @@ ai-evals-lab/
 │   ├── 09-ci-gating/
 │   └── 10-mlnet/
 │
+├── scripts/
+│
 └── articles/
 ```
+
+### `scripts/`
+
+Helper scripts that support the eval loop but are not part of either application:
+
+- running an eval suite for a single stage;
+- generating the HTML report via the `dotnet aieval` console tool;
+- comparing a run against a saved baseline in `evals/baselines/`;
+- one-off dataset maintenance (auditing golden sets, spotting duplicates).
+
+Anything here should be re-runnable from a clean checkout, so an experiment can be
+reproduced later rather than remembered.
+
+> `articles/` is intentionally excluded from version control (see `.gitignore`).
 
 ## Approach
 
