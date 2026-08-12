@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="PatchProse/PatchProse.csproj" />
+  <Project Path="PatchProse.Tests/PatchProse.Tests.csproj" />
+</Solution>
