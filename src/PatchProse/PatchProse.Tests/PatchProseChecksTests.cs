@@ -38,20 +38,41 @@ public sealed class PatchProseChecksTests
     [Test]
     public void Commit_message_uses_conventional_commit_format()
     {
-        Assert.That(PatchProseChecks.IsConventionalCommit(Output.CommitMessage), Is.True);
+        // Arrange
+        var commitMessage = Output.CommitMessage;
+
+        // Act
+        var isConventionalCommit = PatchProseChecks.IsConventionalCommit(commitMessage);
+
+        // Assert
+        Assert.That(isConventionalCommit, Is.True);
     }
 
     [Test]
     public void Output_contains_issue_number_from_diff()
     {
-        Assert.That(PatchProseChecks.ContainsIssueReferencesFromDiff(Diff, Output), Is.True);
+        // Arrange
+        var diff = Diff;
+        var output = Output;
+
+        // Act
+        var containsIssueReferences = PatchProseChecks.ContainsIssueReferencesFromDiff(diff, output);
+
+        // Assert
+        Assert.That(containsIssueReferences, Is.True);
     }
 
     [Test]
     public void Files_touched_match_the_diff()
     {
-        var result = PatchProseChecks.CompareFilesTouched(Diff, Output);
+        // Arrange
+        var diff = Diff;
+        var output = Output;
 
+        // Act
+        var result = PatchProseChecks.CompareFilesTouched(diff, output);
+
+        // Assert
         Assert.That(result.IsMatch, Is.True);
         Assert.That(result.MissingFiles, Is.Empty);
         Assert.That(result.UnexpectedFiles, Is.Empty);
