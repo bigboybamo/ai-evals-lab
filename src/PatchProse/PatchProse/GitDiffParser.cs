@@ -47,7 +47,7 @@ public static partial class GitDiffParser
         files.Add(normalized);
     }
 
-    [GeneratedRegex(@"^diff --git (?<left>\S+) (?<right>\S+)$", RegexOptions.Multiline)]
+    [GeneratedRegex(@"^diff --git (?<left>\S+) (?<right>\S+)\r?$", RegexOptions.Multiline)]
     private static partial Regex DiffHeaderRegex();
 
     [GeneratedRegex(@"(?<![A-Za-z0-9])(?:#[0-9]+|[A-Z][A-Z0-9]+-[0-9]+)(?![A-Za-z0-9])")]

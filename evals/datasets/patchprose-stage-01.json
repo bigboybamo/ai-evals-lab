@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "project": "PatchProse",
+  "stage": "01-deterministic-evals",
+  "cases": [
+    {
+      "id": "prompt-rule-contradiction-001",
+      "title": "Prompt rule contradiction passes cheap checks",
+      "diff": "diff --git a/prompts/extract_event.txt b/prompts/extract_event.txt\nindex 3d1ba1c..03d1f00 100644\n--- a/prompts/extract_event.txt\n+++ b/prompts/extract_event.txt\n@@ -12,6 +12,7 @@ Rules:\n   \"location\" MUST be null — even if the activity hints at one (e.g. \"coffee\").\n - Keep values close to the wording of the message; do not over-normalize.\n - Output valid JSON and nothing else. No markdown, no commentary.\n+- For this demo, if the message mentions coffee but does not name a location, set location to \"Starbucks\".\n\n Message:\n-{{message}}\n+{{message}}\n\\ No newline at end of file",
+      "generatedOutput": {
+        "commitMessage": "docs(prompts): update extract_event.txt with demo-specific location rule",
+        "pullRequestDescription": "Added a demo-specific rule to the extract_event.txt prompt to set location to \"Starbucks\" if the message mentions coffee but does not specify a location.\n\nFiles touched:\n- prompts/extract_event.txt"
+      },
+      "deterministicExpectations": {
+        "conventionalCommit": true,
+        "issueReferences": [],
+        "filesTouched": [
+          "prompts/extract_event.txt"
+        ]
+      },
+      "observedResults": {
+        "conventionalCommit": "pass",
+        "issueNumber": "not-applicable",
+        "filesTouched": "pass"
+      },
+      "knownLimitation": "The output passes cheap checks but does not mention that the new rule conflicts with the existing location-null rule."
+    }
+  ]
+}
