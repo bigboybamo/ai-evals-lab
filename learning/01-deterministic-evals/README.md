@@ -32,7 +32,7 @@ Written at the *end* of the stage, not the start. Keep it concise.
 
 - [x] Required feature works — CLI runs end to end against a real repo
 - [x] Tests pass — 3/3 green
-- [ ] Evaluation dataset started — `evals/datasets/patchprose-stage-01.json` has 1 seed case; still needs ~8 diffs with reference descriptions
+- [x] Evaluation dataset exists — `evals/datasets/patchprose-stage-01.json` has 8 seed cases with reference descriptions
 - [ ] Experiment can be reproduced
 - [ ] Baseline saved — `evals/baselines/`
 - [x] At least one failure case reproduced — CRLF harness bug (Experiment 0)

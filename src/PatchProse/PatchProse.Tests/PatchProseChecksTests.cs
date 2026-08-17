@@ -2,79 +2,55 @@ namespace PatchProse.Tests;
 
 public sealed class PatchProseChecksTests
 {
-    private const string Diff = """
-        diff --git a/src/CheckoutService.cs b/src/CheckoutService.cs
-        index 1111111..2222222 100644
-        --- a/src/CheckoutService.cs
-        +++ b/src/CheckoutService.cs
-        @@ -1,5 +1,6 @@
-         public sealed class CheckoutService
-         {
-        +    // Fixes CART-42
-             public bool CanCheckout(Cart cart) => cart.Items.Count > 0;
-         }
-        diff --git a/tests/CheckoutServiceTests.cs b/tests/CheckoutServiceTests.cs
-        index 3333333..4444444 100644
-        --- a/tests/CheckoutServiceTests.cs
-        +++ b/tests/CheckoutServiceTests.cs
-        @@ -1,4 +1,5 @@
-         public sealed class CheckoutServiceTests
-         {
-        +    // Covers CART-42
-         }
-        """;
-
-    private static readonly PatchProseOutput Output = new(
-        "fix(checkout): handle empty carts for CART-42",
-        """
-        Summary:
-        Handles the CART-42 checkout edge case without changing unrelated behavior.
-
-        Files touched:
-        - src/CheckoutService.cs
-        - tests/CheckoutServiceTests.cs
-        """);
-
-    [Test]
-    public void Commit_message_uses_conventional_commit_format()
+    public static IEnumerable<TestCaseData> DatasetCases()
     {
-        // Arrange
-        var commitMessage = Output.CommitMessage;
-
-        // Act
-        var isConventionalCommit = PatchProseChecks.IsConventionalCommit(commitMessage);
-
-        // Assert
-        Assert.That(isConventionalCommit, Is.True);
+        foreach (var testCase in PatchProseDataset.Load().Cases)
+        {
+            yield return new TestCaseData(testCase).SetName(testCase.Id);
+        }
     }
 
-    [Test]
-    public void Output_contains_issue_number_from_diff()
+    [TestCaseSource(nameof(DatasetCases))]
+    public void Commit_message_uses_expected_conventional_commit_result(PatchProseDatasetCase testCase)
     {
         // Arrange
-        var diff = Diff;
-        var output = Output;
+        var commitMessage = testCase.GeneratedOutput.CommitMessage;
+        var expected = testCase.ExpectedCheckResults.ConventionalCommit;
 
         // Act
-        var containsIssueReferences = PatchProseChecks.ContainsIssueReferencesFromDiff(diff, output);
+        var actual = PatchProseChecks.IsConventionalCommit(commitMessage);
 
         // Assert
-        Assert.That(containsIssueReferences, Is.True);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
-    [Test]
-    public void Files_touched_match_the_diff()
+    [TestCaseSource(nameof(DatasetCases))]
+    public void Issue_references_match_expected_result(PatchProseDatasetCase testCase)
     {
         // Arrange
-        var diff = Diff;
-        var output = Output;
+        var diff = testCase.Diff;
+        var output = testCase.ToOutput();
+        var expected = testCase.ExpectedCheckResults.IssueReferencesMatch;
+
+        // Act
+        var result = PatchProseChecks.CompareIssueReferences(diff, output);
+
+        // Assert
+        Assert.That(result.IsMatch, Is.EqualTo(expected));
+    }
+
+    [TestCaseSource(nameof(DatasetCases))]
+    public void Files_touched_match_expected_result(PatchProseDatasetCase testCase)
+    {
+        // Arrange
+        var diff = testCase.Diff;
+        var output = testCase.ToOutput();
+        var expected = testCase.ExpectedCheckResults.FilesTouchedMatch;
 
         // Act
         var result = PatchProseChecks.CompareFilesTouched(diff, output);
 
         // Assert
-        Assert.That(result.IsMatch, Is.True);
-        Assert.That(result.MissingFiles, Is.Empty);
-        Assert.That(result.UnexpectedFiles, Is.Empty);
+        Assert.That(result.IsMatch, Is.EqualTo(expected));
     }
 }

@@ -24,4 +24,8 @@
     <ProjectReference Include="..\PatchProse\PatchProse.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\..\evals\datasets\patchprose-stage-01.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

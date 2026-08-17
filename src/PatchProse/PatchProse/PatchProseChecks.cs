@@ -4,26 +4,39 @@ namespace PatchProse;
 
 public static partial class PatchProseChecks
 {
+    /// <summary>
+    /// Checks whether the commit message follows the conventional commit format.
+    /// </summary>
     public static bool IsConventionalCommit(string commitMessage)
     {
         return ConventionalCommitRegex().IsMatch(commitMessage);
     }
 
+    /// <summary>
+    /// Checks whether all issue references found in the diff also appear in the PatchProse output.
+    /// </summary>
     public static bool ContainsIssueReferencesFromDiff(string diff, PatchProseOutput output)
     {
-        var expectedIssues = GitDiffParser.ExtractIssueReferences(diff);
-
-        if (expectedIssues.Count == 0)
-        {
-            return true;
-        }
-
-        var outputText = $"{output.CommitMessage}\n{output.PullRequestDescription}";
-        var actualIssues = GitDiffParser.ExtractIssueReferences(outputText);
-
-        return expectedIssues.IsSubsetOf(actualIssues);
+        return CompareIssueReferences(diff, output).IsMatch;
     }
 
+    /// <summary>
+    /// Compares issue references from the diff with issue references in the generated output.
+    /// </summary>
+    public static IssueReferenceMatchResult CompareIssueReferences(string diff, PatchProseOutput output)
+    {
+        var expected = GitDiffParser.ExtractIssueReferences(diff);
+        var outputText = $"{output.CommitMessage}\n{output.PullRequestDescription}";
+        var actual = GitDiffParser.ExtractIssueReferences(outputText);
+
+        return new IssueReferenceMatchResult(
+            expected.Except(actual, StringComparer.OrdinalIgnoreCase).ToArray(),
+            actual.Except(expected, StringComparer.OrdinalIgnoreCase).ToArray());
+    }
+
+    /// <summary>
+    /// Compares files touched in the git diff with files listed in the generated PR description.
+    /// </summary>
     public static FileMatchResult CompareFilesTouched(string diff, PatchProseOutput output)
     {
         var expected = GitDiffParser.ExtractTouchedFiles(diff);
@@ -34,6 +47,9 @@ public static partial class PatchProseChecks
             actual.Except(expected, StringComparer.Ordinal).ToArray());
     }
 
+    /// <summary>
+    /// Extracts file paths from the generated PR description's "Files touched:" section.
+    /// </summary>
     public static IReadOnlySet<string> ExtractFilesTouchedFromDescription(string pullRequestDescription)
     {
         var files = new SortedSet<string>(StringComparer.Ordinal);

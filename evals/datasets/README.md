@@ -8,7 +8,7 @@ For Stage 1, this folder should hold PatchProse cases that deterministic checks 
 - the generated PatchProse output captured from a real run;
 - expected issue references from the diff;
 - expected files touched;
-- observed pass/fail results;
+- expected deterministic check results;
 - known limitation or surprising behavior.
 
-The first seed dataset is `patchprose-stage-01.json`.
+The Stage 1 dataset is `patchprose-stage-01.json`.

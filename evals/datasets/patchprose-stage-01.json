@@ -6,24 +6,198 @@
     {
       "id": "prompt-rule-contradiction-001",
       "title": "Prompt rule contradiction passes cheap checks",
+      "category": "known-limitation",
       "diff": "diff --git a/prompts/extract_event.txt b/prompts/extract_event.txt\nindex 3d1ba1c..03d1f00 100644\n--- a/prompts/extract_event.txt\n+++ b/prompts/extract_event.txt\n@@ -12,6 +12,7 @@ Rules:\n   \"location\" MUST be null — even if the activity hints at one (e.g. \"coffee\").\n - Keep values close to the wording of the message; do not over-normalize.\n - Output valid JSON and nothing else. No markdown, no commentary.\n+- For this demo, if the message mentions coffee but does not name a location, set location to \"Starbucks\".\n\n Message:\n-{{message}}\n+{{message}}\n\\ No newline at end of file",
       "generatedOutput": {
         "commitMessage": "docs(prompts): update extract_event.txt with demo-specific location rule",
         "pullRequestDescription": "Added a demo-specific rule to the extract_event.txt prompt to set location to \"Starbucks\" if the message mentions coffee but does not specify a location.\n\nFiles touched:\n- prompts/extract_event.txt"
       },
-      "deterministicExpectations": {
+      "referenceDescription": "Adds a demo-specific Starbucks fallback to the event extraction prompt, but this conflicts with the existing rule that location must remain null when no explicit location is named.",
+      "expectedCheckResults": {
         "conventionalCommit": true,
+        "issueReferencesMatch": true,
+        "filesTouchedMatch": true
+      },
+      "expectedFacts": {
         "issueReferences": [],
         "filesTouched": [
           "prompts/extract_event.txt"
         ]
       },
-      "observedResults": {
-        "conventionalCommit": "pass",
-        "issueNumber": "not-applicable",
-        "filesTouched": "pass"
-      },
       "knownLimitation": "The output passes cheap checks but does not mention that the new rule conflicts with the existing location-null rule."
+    },
+    {
+      "id": "bugfix-with-issue-002",
+      "title": "Bug fix mentions the issue and both changed files",
+      "category": "bug-fix-with-issue-number",
+      "diff": "diff --git a/src/CheckoutService.cs b/src/CheckoutService.cs\nindex 1111111..2222222 100644\n--- a/src/CheckoutService.cs\n+++ b/src/CheckoutService.cs\n@@ -4,7 +4,11 @@ public sealed class CheckoutService\n     public CheckoutResult Checkout(Cart cart)\n     {\n+        // Fixes CART-42\n+        if (cart.Items.Count == 0)\n+        {\n+            return CheckoutResult.EmptyCart;\n+        }\n         return CheckoutResult.Success;\n     }\n }\ndiff --git a/tests/CheckoutServiceTests.cs b/tests/CheckoutServiceTests.cs\nindex 3333333..4444444 100644\n--- a/tests/CheckoutServiceTests.cs\n+++ b/tests/CheckoutServiceTests.cs\n@@ -8,4 +8,10 @@ public sealed class CheckoutServiceTests\n+    [Test]\n+    public void Empty_cart_returns_CART_42_error()\n+    {\n+        Assert.That(service.Checkout(new Cart()), Is.EqualTo(CheckoutResult.EmptyCart));\n+    }\n }",
+      "generatedOutput": {
+        "commitMessage": "fix(checkout): require non-empty carts for CART-42",
+        "pullRequestDescription": "Prevents checkout from succeeding when the cart has no items and adds test coverage for CART-42.\n\nFiles touched:\n- src/CheckoutService.cs\n- tests/CheckoutServiceTests.cs"
+      },
+      "referenceDescription": "Adds an empty-cart guard to checkout and covers the CART-42 behavior in tests.",
+      "expectedCheckResults": {
+        "conventionalCommit": true,
+        "issueReferencesMatch": true,
+        "filesTouchedMatch": true
+      },
+      "expectedFacts": {
+        "issueReferences": [
+          "CART-42"
+        ],
+        "filesTouched": [
+          "src/CheckoutService.cs",
+          "tests/CheckoutServiceTests.cs"
+        ]
+      },
+      "knownLimitation": "The checks do not verify whether EmptyCart is the correct behavior."
+    },
+    {
+      "id": "docs-only-change-003",
+      "title": "Docs-only change",
+      "category": "docs-only-change",
+      "diff": "diff --git a/README.md b/README.md\nindex aaaaaaa..bbbbbbb 100644\n--- a/README.md\n+++ b/README.md\n@@ -20,6 +20,9 @@ Run the tests before opening a pull request.\n \n ## Local setup\n \n+Install the .NET SDK, restore packages, and run the PatchProse solution from\n+`src/PatchProse`.\n+\n ## License\n \n MIT",
+      "generatedOutput": {
+        "commitMessage": "docs(readme): document local setup",
+        "pullRequestDescription": "Documents the local setup steps for restoring packages and running the PatchProse solution.\n\nFiles touched:\n- README.md"
+      },
+      "referenceDescription": "Adds local setup guidance to the README.",
+      "expectedCheckResults": {
+        "conventionalCommit": true,
+        "issueReferencesMatch": true,
+        "filesTouchedMatch": true
+      },
+      "expectedFacts": {
+        "issueReferences": [],
+        "filesTouched": [
+          "README.md"
+        ]
+      },
+      "knownLimitation": "The checks do not determine whether the setup instructions are complete."
+    },
+    {
+      "id": "test-only-change-004",
+      "title": "Test-only change with issue reference",
+      "category": "test-only-change",
+      "diff": "diff --git a/tests/AuthServiceTests.cs b/tests/AuthServiceTests.cs\nindex 5555555..6666666 100644\n--- a/tests/AuthServiceTests.cs\n+++ b/tests/AuthServiceTests.cs\n@@ -12,4 +12,11 @@ public sealed class AuthServiceTests\n+    [Test]\n+    public void Locked_accounts_return_AUTH_17_failure()\n+    {\n+        var result = service.SignIn(\"locked@example.com\");\n+\n+        Assert.That(result.ErrorCode, Is.EqualTo(\"AUTH-17\"));\n+    }\n }",
+      "generatedOutput": {
+        "commitMessage": "test(auth): cover locked accounts for AUTH-17",
+        "pullRequestDescription": "Adds test coverage for locked-account sign-in failures using AUTH-17.\n\nFiles touched:\n- tests/AuthServiceTests.cs"
+      },
+      "referenceDescription": "Adds an AuthService test for locked-account sign-in behavior.",
+      "expectedCheckResults": {
+        "conventionalCommit": true,
+        "issueReferencesMatch": true,
+        "filesTouchedMatch": true
+      },
+      "expectedFacts": {
+        "issueReferences": [
+          "AUTH-17"
+        ],
+        "filesTouched": [
+          "tests/AuthServiceTests.cs"
+        ]
+      },
+      "knownLimitation": "The checks do not verify whether the test assertion is meaningful."
+    },
+    {
+      "id": "multi-file-feature-005",
+      "title": "Multi-file feature change",
+      "category": "multi-file-change",
+      "diff": "diff --git a/src/Payments/PaymentRequest.cs b/src/Payments/PaymentRequest.cs\nindex 7777777..8888888 100644\n--- a/src/Payments/PaymentRequest.cs\n+++ b/src/Payments/PaymentRequest.cs\n@@ -1,5 +1,6 @@\n public sealed record PaymentRequest(\n     decimal Amount,\n+    string Reference,\n     string Currency);\ndiff --git a/src/Payments/PaymentService.cs b/src/Payments/PaymentService.cs\nindex 9999999..aaaaaaa 100644\n--- a/src/Payments/PaymentService.cs\n+++ b/src/Payments/PaymentService.cs\n@@ -10,6 +10,7 @@ public sealed class PaymentService\n         payload.Amount = request.Amount;\n+        payload.Reference = request.Reference; // PAY-104\n         payload.Currency = request.Currency;\ndiff --git a/tests/PaymentServiceTests.cs b/tests/PaymentServiceTests.cs\nindex bbbbbbb..ccccccc 100644\n--- a/tests/PaymentServiceTests.cs\n+++ b/tests/PaymentServiceTests.cs\n@@ -7,4 +7,9 @@ public sealed class PaymentServiceTests\n+    [Test]\n+    public void Sends_payment_reference_for_PAY_104()\n+    {\n+        Assert.That(payload.Reference, Is.EqualTo(\"order-123\"));\n+    }\n }",
+      "generatedOutput": {
+        "commitMessage": "feat(payments): add payment references for PAY-104",
+        "pullRequestDescription": "Adds a payment reference to requests, forwards it through the payment payload, and covers PAY-104 with a service test.\n\nFiles touched:\n- src/Payments/PaymentRequest.cs\n- src/Payments/PaymentService.cs\n- tests/PaymentServiceTests.cs"
+      },
+      "referenceDescription": "Adds payment references across the request model, service payload, and tests.",
+      "expectedCheckResults": {
+        "conventionalCommit": true,
+        "issueReferencesMatch": true,
+        "filesTouchedMatch": true
+      },
+      "expectedFacts": {
+        "issueReferences": [
+          "PAY-104"
+        ],
+        "filesTouched": [
+          "src/Payments/PaymentRequest.cs",
+          "src/Payments/PaymentService.cs",
+          "tests/PaymentServiceTests.cs"
+        ]
+      },
+      "knownLimitation": "The checks do not verify whether every required call site was updated."
+    },
+    {
+      "id": "rename-change-006",
+      "title": "Rename change lists old and new paths",
+      "category": "rename",
+      "diff": "diff --git a/src/OldInvoice.cs b/src/Billing/Invoice.cs\nsimilarity index 87%\nrename from src/OldInvoice.cs\nrename to src/Billing/Invoice.cs\nindex ddddddd..eeeeeee 100644\n--- a/src/OldInvoice.cs\n+++ b/src/Billing/Invoice.cs\n@@ -1,5 +1,5 @@\n namespace Billing;\n \n-public sealed class OldInvoice\n+public sealed class Invoice\n {\n }",
+      "generatedOutput": {
+        "commitMessage": "refactor(billing): move invoice model",
+        "pullRequestDescription": "Moves the invoice model into the Billing namespace and renames the class to Invoice.\n\nFiles touched:\n- src/OldInvoice.cs\n- src/Billing/Invoice.cs"
+      },
+      "referenceDescription": "Renames OldInvoice to Invoice and moves it under the Billing folder.",
+      "expectedCheckResults": {
+        "conventionalCommit": true,
+        "issueReferencesMatch": true,
+        "filesTouchedMatch": true
+      },
+      "expectedFacts": {
+        "issueReferences": [],
+        "filesTouched": [
+          "src/Billing/Invoice.cs",
+          "src/OldInvoice.cs"
+        ]
+      },
+      "knownLimitation": "The current touched-file parser treats a rename as both old and new paths."
+    },
+    {
+      "id": "missing-issue-reference-007",
+      "title": "Output omits issue reference from diff",
+      "category": "expected-failure",
+      "diff": "diff --git a/src/Orders/OrderTotal.cs b/src/Orders/OrderTotal.cs\nindex 1212121..3434343 100644\n--- a/src/Orders/OrderTotal.cs\n+++ b/src/Orders/OrderTotal.cs\n@@ -3,6 +3,11 @@ public sealed class OrderTotal\n     public decimal Calculate(Order order)\n     {\n+        // Fixes ORD-88\n+        if (order.Lines.Count == 0)\n+        {\n+            return 0m;\n+        }\n         return order.Lines.Sum(line => line.Amount);\n     }\n }",
+      "generatedOutput": {
+        "commitMessage": "fix(orders): handle missing totals",
+        "pullRequestDescription": "Handles empty orders by returning a zero total before summing line items.\n\nFiles touched:\n- src/Orders/OrderTotal.cs"
+      },
+      "referenceDescription": "Handles empty orders and mentions ORD-88.",
+      "expectedCheckResults": {
+        "conventionalCommit": true,
+        "issueReferencesMatch": false,
+        "filesTouchedMatch": true
+      },
+      "expectedFacts": {
+        "issueReferences": [
+          "ORD-88"
+        ],
+        "filesTouched": [
+          "src/Orders/OrderTotal.cs"
+        ]
+      },
+      "knownLimitation": "This is an intentional negative case for the issue-reference check."
+    },
+    {
+      "id": "hallucinated-file-008",
+      "title": "Output lists a file absent from the diff",
+      "category": "expected-failure",
+      "diff": "diff --git a/src/Users/UserProfile.cs b/src/Users/UserProfile.cs\nindex 5656565..7878787 100644\n--- a/src/Users/UserProfile.cs\n+++ b/src/Users/UserProfile.cs\n@@ -6,6 +6,7 @@ public sealed class UserProfile\n     public string DisplayName { get; init; } = string.Empty;\n+    public string TimeZone { get; init; } = \"UTC\";\n }",
+      "generatedOutput": {
+        "commitMessage": "feat(users): add profile time zone",
+        "pullRequestDescription": "Adds a TimeZone property to user profiles and updates role permissions to use it.\n\nFiles touched:\n- src/Users/UserProfile.cs\n- src/Users/RolePermissions.cs"
+      },
+      "referenceDescription": "Adds a TimeZone property to UserProfile only.",
+      "expectedCheckResults": {
+        "conventionalCommit": true,
+        "issueReferencesMatch": true,
+        "filesTouchedMatch": false
+      },
+      "expectedFacts": {
+        "issueReferences": [],
+        "filesTouched": [
+          "src/Users/UserProfile.cs"
+        ]
+      },
+      "knownLimitation": "The file check catches the hallucinated file, but it does not catch the hallucinated role-permissions behavior unless the file is listed."
     }
   ]
 }
