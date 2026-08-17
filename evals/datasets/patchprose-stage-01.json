@@ -24,7 +24,11 @@
           "prompts/extract_event.txt"
         ]
       },
-      "knownLimitation": "The output passes cheap checks but does not mention that the new rule conflicts with the existing location-null rule."
+      "knownLimitation": "The output passes cheap checks but does not mention that the new rule conflicts with the existing location-null rule.",
+      "expectedReferenceMetrics": {
+        "exactMatch": false,
+        "tokenOverlapF1": 0.4194
+      }
     },
     {
       "id": "bugfix-with-issue-002",
@@ -50,7 +54,11 @@
           "tests/CheckoutServiceTests.cs"
         ]
       },
-      "knownLimitation": "The checks do not verify whether EmptyCart is the correct behavior."
+      "knownLimitation": "The checks do not verify whether EmptyCart is the correct behavior.",
+      "expectedReferenceMetrics": {
+        "exactMatch": false,
+        "tokenOverlapF1": 0.4
+      }
     },
     {
       "id": "docs-only-change-003",
@@ -73,7 +81,11 @@
           "README.md"
         ]
       },
-      "knownLimitation": "The checks do not determine whether the setup instructions are complete."
+      "knownLimitation": "The checks do not determine whether the setup instructions are complete.",
+      "expectedReferenceMetrics": {
+        "exactMatch": false,
+        "tokenOverlapF1": 0.3333
+      }
     },
     {
       "id": "test-only-change-004",
@@ -98,7 +110,11 @@
           "tests/AuthServiceTests.cs"
         ]
       },
-      "knownLimitation": "The checks do not verify whether the test assertion is meaningful."
+      "knownLimitation": "The checks do not verify whether the test assertion is meaningful.",
+      "expectedReferenceMetrics": {
+        "exactMatch": false,
+        "tokenOverlapF1": 0.5185
+      }
     },
     {
       "id": "multi-file-feature-005",
@@ -125,7 +141,11 @@
           "tests/PaymentServiceTests.cs"
         ]
       },
-      "knownLimitation": "The checks do not verify whether every required call site was updated."
+      "knownLimitation": "The checks do not verify whether every required call site was updated.",
+      "expectedReferenceMetrics": {
+        "exactMatch": false,
+        "tokenOverlapF1": 0.3182
+      }
     },
     {
       "id": "rename-change-006",
@@ -149,7 +169,11 @@
           "src/OldInvoice.cs"
         ]
       },
-      "knownLimitation": "The current touched-file parser treats a rename as both old and new paths."
+      "knownLimitation": "The current touched-file parser treats a rename as both old and new paths.",
+      "expectedReferenceMetrics": {
+        "exactMatch": false,
+        "tokenOverlapF1": 0.4706
+      }
     },
     {
       "id": "missing-issue-reference-007",
@@ -174,7 +198,11 @@
           "src/Orders/OrderTotal.cs"
         ]
       },
-      "knownLimitation": "This is an intentional negative case for the issue-reference check."
+      "knownLimitation": "This is an intentional negative case for the issue-reference check.",
+      "expectedReferenceMetrics": {
+        "exactMatch": false,
+        "tokenOverlapF1": 0.24
+      }
     },
     {
       "id": "hallucinated-file-008",
@@ -197,7 +225,11 @@
           "src/Users/UserProfile.cs"
         ]
       },
-      "knownLimitation": "The file check catches the hallucinated file, but it does not catch the hallucinated role-permissions behavior unless the file is listed."
+      "knownLimitation": "The file check catches the hallucinated file, but it does not catch the hallucinated role-permissions behavior unless the file is listed.",
+      "expectedReferenceMetrics": {
+        "exactMatch": false,
+        "tokenOverlapF1": 0.3871
+      }
     }
   ]
 }

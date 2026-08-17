@@ -53,4 +53,34 @@ public sealed class PatchProseChecksTests
         // Assert
         Assert.That(result.IsMatch, Is.EqualTo(expected));
     }
+
+    [TestCaseSource(nameof(DatasetCases))]
+    public void Pull_request_description_has_expected_exact_match_result(PatchProseDatasetCase testCase)
+    {
+        // Arrange
+        var generated = testCase.GeneratedOutput.PullRequestDescription;
+        var reference = testCase.ReferenceDescription;
+        var expected = testCase.ExpectedReferenceMetrics.ExactMatch;
+
+        // Act
+        var actual = ReferenceTextMetrics.ExactMatch(generated, reference);
+
+        // Assert
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    [TestCaseSource(nameof(DatasetCases))]
+    public void Pull_request_description_has_expected_token_overlap_f1(PatchProseDatasetCase testCase)
+    {
+        // Arrange
+        var generated = testCase.GeneratedOutput.PullRequestDescription;
+        var reference = testCase.ReferenceDescription;
+        var expected = testCase.ExpectedReferenceMetrics.TokenOverlapF1;
+
+        // Act
+        var actual = ReferenceTextMetrics.TokenOverlapF1(generated, reference);
+
+        // Assert
+        Assert.That(actual.F1, Is.EqualTo(expected).Within(0.0001));
+    }
 }

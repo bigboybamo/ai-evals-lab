@@ -26,6 +26,7 @@ public sealed record PatchProseDatasetCase(
     PatchProseDatasetOutput GeneratedOutput,
     string ReferenceDescription,
     PatchProseExpectedCheckResults ExpectedCheckResults,
+    PatchProseExpectedReferenceMetrics ExpectedReferenceMetrics,
     PatchProseExpectedFacts ExpectedFacts,
     string KnownLimitation)
 {
@@ -45,6 +46,10 @@ public sealed record PatchProseExpectedCheckResults(
     bool ConventionalCommit,
     bool IssueReferencesMatch,
     bool FilesTouchedMatch);
+
+public sealed record PatchProseExpectedReferenceMetrics(
+    bool ExactMatch,
+    double TokenOverlapF1);
 
 public sealed record PatchProseExpectedFacts(
     IReadOnlyList<string> IssueReferences,

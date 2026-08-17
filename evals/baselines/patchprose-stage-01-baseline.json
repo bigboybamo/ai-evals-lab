@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "project": "PatchProse",
+  "stage": "01-deterministic-evals",
+  "dataset": "evals/datasets/patchprose-stage-01.json",
+  "summary": {
+    "caseCount": 8,
+    "conventionalCommitPassCount": 8,
+    "issueReferencesMatchCount": 7,
+    "filesTouchedMatchCount": 7,
+    "exactMatchCount": 0,
+    "averageTokenOverlapF1": 0.3859
+  },
+  "cases": [
+    {
+      "id": "prompt-rule-contradiction-001",
+      "title": "Prompt rule contradiction passes cheap checks",
+      "category": "known-limitation",
+      "conventionalCommit": true,
+      "issueReferencesMatch": true,
+      "filesTouchedMatch": true,
+      "exactMatch": false,
+      "tokenOverlap": {
+        "precision": 0.3939393939393939,
+        "recall": 0.4482758620689655,
+        "f1": 0.41935483870967744
+      },
+      "missingIssues": [],
+      "unexpectedIssues": [],
+      "missingFiles": [],
+      "unexpectedFiles": [],
+      "knownLimitation": "The output passes cheap checks but does not mention that the new rule conflicts with the existing location-null rule."
+    },
+    {
+      "id": "bugfix-with-issue-002",
+      "title": "Bug fix mentions the issue and both changed files",
+      "category": "bug-fix-with-issue-number",
+      "conventionalCommit": true,
+      "issueReferencesMatch": true,
+      "filesTouchedMatch": true,
+      "exactMatch": false,
+      "tokenOverlap": {
+        "precision": 0.32,
+        "recall": 0.5333333333333333,
+        "f1": 0.4
+      },
+      "missingIssues": [],
+      "unexpectedIssues": [],
+      "missingFiles": [],
+      "unexpectedFiles": [],
+      "knownLimitation": "The checks do not verify whether EmptyCart is the correct behavior."
+    },
+    {
+      "id": "docs-only-change-003",
+      "title": "Docs-only change",
+      "category": "docs-only-change",
+      "conventionalCommit": true,
+      "issueReferencesMatch": true,
+      "filesTouchedMatch": true,
+      "exactMatch": false,
+      "tokenOverlap": {
+        "precision": 0.23529411764705882,
+        "recall": 0.5714285714285714,
+        "f1": 0.3333333333333333
+      },
+      "missingIssues": [],
+      "unexpectedIssues": [],
+      "missingFiles": [],
+      "unexpectedFiles": [],
+      "knownLimitation": "The checks do not determine whether the setup instructions are complete."
+    },
+    {
+      "id": "test-only-change-004",
+      "title": "Test-only change with issue reference",
+      "category": "test-only-change",
+      "conventionalCommit": true,
+      "issueReferencesMatch": true,
+      "filesTouchedMatch": true,
+      "exactMatch": false,
+      "tokenOverlap": {
+        "precision": 0.4117647058823529,
+        "recall": 0.7,
+        "f1": 0.5185185185185185
+      },
+      "missingIssues": [],
+      "unexpectedIssues": [],
+      "missingFiles": [],
+      "unexpectedFiles": [],
+      "knownLimitation": "The checks do not verify whether the test assertion is meaningful."
+    },
+    {
+      "id": "multi-file-feature-005",
+      "title": "Multi-file feature change",
+      "category": "multi-file-change",
+      "conventionalCommit": true,
+      "issueReferencesMatch": true,
+      "filesTouchedMatch": true,
+      "exactMatch": false,
+      "tokenOverlap": {
+        "precision": 0.21212121212121213,
+        "recall": 0.6363636363636364,
+        "f1": 0.3181818181818182
+      },
+      "missingIssues": [],
+      "unexpectedIssues": [],
+      "missingFiles": [],
+      "unexpectedFiles": [],
+      "knownLimitation": "The checks do not verify whether every required call site was updated."
+    },
+    {
+      "id": "rename-change-006",
+      "title": "Rename change lists old and new paths",
+      "category": "rename",
+      "conventionalCommit": true,
+      "issueReferencesMatch": true,
+      "filesTouchedMatch": true,
+      "exactMatch": false,
+      "tokenOverlap": {
+        "precision": 0.34782608695652173,
+        "recall": 0.7272727272727273,
+        "f1": 0.4705882352941176
+      },
+      "missingIssues": [],
+      "unexpectedIssues": [],
+      "missingFiles": [],
+      "unexpectedFiles": [],
+      "knownLimitation": "The current touched-file parser treats a rename as both old and new paths."
+    },
+    {
+      "id": "missing-issue-reference-007",
+      "title": "Output omits issue reference from diff",
+      "category": "expected-failure",
+      "conventionalCommit": true,
+      "issueReferencesMatch": false,
+      "filesTouchedMatch": true,
+      "exactMatch": false,
+      "tokenOverlap": {
+        "precision": 0.16666666666666666,
+        "recall": 0.42857142857142855,
+        "f1": 0.24
+      },
+      "missingIssues": [
+        "ORD-88"
+      ],
+      "unexpectedIssues": [],
+      "missingFiles": [],
+      "unexpectedFiles": [],
+      "knownLimitation": "This is an intentional negative case for the issue-reference check."
+    },
+    {
+      "id": "hallucinated-file-008",
+      "title": "Output lists a file absent from the diff",
+      "category": "expected-failure",
+      "conventionalCommit": true,
+      "issueReferencesMatch": true,
+      "filesTouchedMatch": false,
+      "exactMatch": false,
+      "tokenOverlap": {
+        "precision": 0.25,
+        "recall": 0.8571428571428571,
+        "f1": 0.3870967741935483
+      },
+      "missingIssues": [],
+      "unexpectedIssues": [],
+      "missingFiles": [],
+      "unexpectedFiles": [
+        "src/Users/RolePermissions.cs"
+      ],
+      "knownLimitation": "The file check catches the hallucinated file, but it does not catch the hallucinated role-permissions behavior unless the file is listed."
+    }
+  ]
+}

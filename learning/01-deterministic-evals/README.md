@@ -33,10 +33,10 @@ Written at the *end* of the stage, not the start. Keep it concise.
 - [x] Required feature works — CLI runs end to end against a real repo
 - [x] Tests pass — 3/3 green
 - [x] Evaluation dataset exists — `evals/datasets/patchprose-stage-01.json` has 8 seed cases with reference descriptions
-- [ ] Experiment can be reproduced
-- [ ] Baseline saved — `evals/baselines/`
+- [x] Experiment can be reproduced — run `dotnet run --project src/PatchProse/PatchProse.Evals`
+- [x] Baseline saved — `evals/baselines/patchprose-stage-01-baseline.json`
 - [x] At least one failure case reproduced — CRLF harness bug (Experiment 0)
-- [ ] Reference metrics implemented — hand-rolled exact match + token F1
+- [x] Reference metrics implemented — hand-rolled exact match + token F1
 - [ ] Cross-checked against `Microsoft.Extensions.AI.Evaluation.NLP`
 
 ### Learn

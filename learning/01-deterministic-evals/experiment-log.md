@@ -111,3 +111,79 @@ How do I evaluate a PR description that is factually accurate but misses the mos
 ## Article Use
 
 This is the first real "cheap evals are necessary but not sufficient" example. It shows where deterministic checks stop and why Stage 2 needs an LLM judge or a stronger project-specific evaluator.
+
+---
+
+# Experiment 2 — Reference metrics over PatchProse descriptions
+
+**Date:** 2026-08-17
+
+## Setup
+
+Added hand-rolled reference metrics for PR descriptions:
+
+- exact match: the generated description must exactly match the reference after trimming
+- token-overlap F1: lowercase word tokens are compared with duplicate counts
+
+The metrics run against the 8 cases in `evals/datasets/patchprose-stage-01.json`.
+
+## Result
+
+Exact match is false for every current case. This is expected: PatchProse can produce a valid description that is not word-for-word identical to my reference.
+
+Token-overlap F1 gives partial credit when generated and reference descriptions share words. For example, `prompt-rule-contradiction-001` scores `0.4194` even though the generated output misses the contradiction risk.
+
+## Observation
+
+Reference metrics measure similarity to one reference answer. They do not prove the generated description is correct, complete, or safe.
+
+Exact match is too strict for prose. Token-overlap F1 is less brittle, but it rewards shared words rather than meaning.
+
+## Question
+
+What score threshold would be meaningful for PatchProse, if many good descriptions can be phrased differently?
+
+## Article Use
+
+This supports the Stage 1 checkpoint: deterministic metrics can be cheap and repeatable while still failing to capture semantic correctness.
+
+---
+
+# Experiment 3 — First deterministic baseline
+
+**Date:** 2026-08-17
+
+## Setup
+
+Added `PatchProse.Evals`, a small console runner that loads `evals/datasets/patchprose-stage-01.json`, runs the deterministic checks and reference metrics, then writes `evals/baselines/patchprose-stage-01-baseline.json`.
+
+Command:
+
+```powershell
+dotnet run --project src\PatchProse\PatchProse.Evals\PatchProse.Evals.csproj
+```
+
+## Result
+
+```text
+Cases: 8
+Conventional commits: 8/8
+Issue references matched: 7/8
+Files touched matched: 7/8
+Exact matches: 0/8
+Average token F1: 0.3859
+```
+
+## Observation
+
+The baseline gives a fixed point for future changes. If a prompt, parser, metric, or dataset edit changes these numbers, I can compare against this file instead of relying on memory.
+
+The `0/8` exact-match count is useful evidence: exact match is too strict for PatchProse descriptions because good prose can be phrased many ways.
+
+## Question
+
+What baseline movement should count as an improvement, and what movement should count as a regression?
+
+## Article Use
+
+Use this as the first evidence table: cheap checks catch concrete structural failures, while reference metrics expose how brittle text matching is for prose.
