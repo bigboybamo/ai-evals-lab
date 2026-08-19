@@ -4,15 +4,15 @@
   "stage": "01-deterministic-evals",
   "dataset": "evals/datasets/patchprose-stage-01.json",
   "summary": {
-    "caseCount": 8,
-    "conventionalCommitPassCount": 8,
-    "issueReferencesMatchCount": 7,
-    "filesTouchedMatchCount": 7,
+    "caseCount": 9,
+    "conventionalCommitPassCount": 9,
+    "issueReferencesMatchCount": 8,
+    "filesTouchedMatchCount": 8,
     "exactMatchCount": 0,
-    "averageTokenOverlapF1": 0.3859,
-    "averageMicrosoftF1": 0.3728,
-    "averageMicrosoftBLEU": 0.0814,
-    "averageMicrosoftGLEU": 0.119
+    "averageTokenOverlapF1": 0.4479,
+    "averageMicrosoftF1": 0.4378,
+    "averageMicrosoftBLEU": 0.1706,
+    "averageMicrosoftGLEU": 0.2045
   },
   "cases": [
     {
@@ -210,6 +210,30 @@
         "src/Users/RolePermissions.cs"
       ],
       "knownLimitation": "The file check catches the hallucinated file, but it does not catch the hallucinated role-permissions behavior unless the file is listed."
+    },
+    {
+      "id": "high-overlap-wrong-meaning-009",
+      "title": "High word overlap with wrong meaning",
+      "category": "synthetic-metric-failure",
+      "conventionalCommit": true,
+      "issueReferencesMatch": true,
+      "filesTouchedMatch": true,
+      "exactMatch": false,
+      "tokenOverlap": {
+        "precision": 0.9444444444444444,
+        "recall": 0.9444444444444444,
+        "f1": 0.9444444444444444
+      },
+      "microsoftNlp": {
+        "f1": 0.9583333333333334,
+        "bleu": 0.8843865924896842,
+        "gleu": 0.8888888888888888
+      },
+      "missingIssues": [],
+      "unexpectedIssues": [],
+      "missingFiles": [],
+      "unexpectedFiles": [],
+      "knownLimitation": "The generated description differs from the reference by one critical token: null vs Starbucks. Overlap metrics can score it highly even though the meaning is wrong."
     }
   ]
 }

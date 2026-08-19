@@ -230,3 +230,53 @@ of them gate PatchProse prose quality?
 
 This is the practical "do not worship the number" example. A metric score is a measurement
 choice, not a universal truth about output quality.
+
+---
+
+# Experiment 5 — High-overlap wrong-meaning checkpoint case
+
+**Date:** 2026-08-19
+
+## Setup
+
+Added `high-overlap-wrong-meaning-009`, a synthetic case where the generated description
+differs from the reference by one critical token:
+
+```text
+Generated: Sets location to null when coffee is mentioned without a named location.
+Reference: Sets location to Starbucks when coffee is mentioned without a named location.
+```
+
+Both descriptions include the same `Files touched:` section.
+
+## Result
+
+```text
+Token F1: 0.9444
+Microsoft F1: 0.9583
+Microsoft BLEU: 0.8844
+Microsoft GLEU: 0.8889
+```
+
+All cheap structural checks pass:
+
+```text
+Conventional commit: pass
+Issue references: pass
+Files touched: pass
+```
+
+## Observation
+
+This case satisfies the Stage 1 checkpoint. BLEU, GLEU, and token F1 all say the generated
+description is highly similar to the reference, but the meaning is wrong. The single changed
+token reverses the behavior that matters.
+
+## Question
+
+How much semantic risk can hide behind a high overlap score?
+
+## Article Use
+
+Use this as the core Stage 1 failure example: text overlap can look excellent while the
+description is still wrong.

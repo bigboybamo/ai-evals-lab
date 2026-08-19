@@ -230,6 +230,33 @@
         "exactMatch": false,
         "tokenOverlapF1": 0.3871
       }
+    },
+    {
+      "id": "high-overlap-wrong-meaning-009",
+      "title": "High word overlap with wrong meaning",
+      "category": "synthetic-metric-failure",
+      "diff": "diff --git a/prompts/extract_event.txt b/prompts/extract_event.txt\nindex 3d1ba1c..03d1f00 100644\n--- a/prompts/extract_event.txt\n+++ b/prompts/extract_event.txt\n@@ -12,6 +12,7 @@ Rules:\n   \"location\" MUST be null — even if the activity hints at one (e.g. \"coffee\").\n - Keep values close to the wording of the message; do not over-normalize.\n - Output valid JSON and nothing else. No markdown, no commentary.\n+- For this demo, if the message mentions coffee but does not name a location, set location to \"Starbucks\".\n\n Message:\n-{{message}}\n+{{message}}\n\\ No newline at end of file",
+      "generatedOutput": {
+        "commitMessage": "docs(prompts): update coffee location handling",
+        "pullRequestDescription": "Sets location to null when coffee is mentioned without a named location.\n\nFiles touched:\n- prompts/extract_event.txt"
+      },
+      "referenceDescription": "Sets location to Starbucks when coffee is mentioned without a named location.\n\nFiles touched:\n- prompts/extract_event.txt",
+      "expectedCheckResults": {
+        "conventionalCommit": true,
+        "issueReferencesMatch": true,
+        "filesTouchedMatch": true
+      },
+      "expectedFacts": {
+        "issueReferences": [],
+        "filesTouched": [
+          "prompts/extract_event.txt"
+        ]
+      },
+      "knownLimitation": "The generated description differs from the reference by one critical token: null vs Starbucks. Overlap metrics can score it highly even though the meaning is wrong.",
+      "expectedReferenceMetrics": {
+        "exactMatch": false,
+        "tokenOverlapF1": 0.9444
+      }
     }
   ]
 }
