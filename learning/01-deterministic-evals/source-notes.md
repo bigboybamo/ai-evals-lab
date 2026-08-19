@@ -19,8 +19,24 @@ example. Do not read these linearly.
 
 ## BLEU
 
-<!-- Definition + one worked example. What does it NOT measure? -->
+Microsoft.Extensions.AI.Evaluation.NLP includes a `BLEUEvaluator`. Microsoft describes BLEU
+as comparing a response to one or more references using the bilingual evaluation understudy
+algorithm. The score is a text-similarity signal, not proof of correctness.
 
 ## ROUGE
 
 <!-- Definition + one worked example. How does it differ from BLEU? -->
+
+## Microsoft.Extensions.AI.Evaluation.NLP
+
+The NLP package contains non-LLM evaluators. Microsoft's docs list `F1Evaluator`,
+`BLEUEvaluator`, and `GLEUEvaluator`; these compare generated response text to reference
+responses using tokenization or n-gram overlap rather than another model.
+
+In this repo, the package resolved to `Microsoft.Extensions.AI.Evaluation.NLP`
+`10.9.0-preview.1.26411.16`, so the API is still prerelease.
+
+The useful lesson from the first cross-check: my hand-rolled token F1 and Microsoft's F1 are
+close but not identical. That is expected because implementations can tokenize and normalize
+text differently. The important thing is understanding what the metric measures, not forcing
+two libraries to produce the exact same decimal.

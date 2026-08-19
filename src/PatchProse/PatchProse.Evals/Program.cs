@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Microsoft.Extensions.AI.Evaluation;
+using Microsoft.Extensions.AI.Evaluation.NLP;
 using PatchProse;
 
 // Default paths are resolved from the repo root so the runner works from any subfolder.
@@ -11,7 +13,7 @@ var baselinePath = args.Length > 1
     : Path.Combine(repositoryRoot, "evals", "baselines", "patchprose-stage-01-baseline.json");
 
 var dataset = StageOneDataset.Load(datasetPath);
-var caseResults = dataset.Cases.Select(Evaluate).ToArray();
+var caseResults = await Task.WhenAll(dataset.Cases.Select(EvaluateAsync));
 var baseline = StageOneBaseline.Create(dataset, caseResults);
 
 // Create the output folder on demand so a clean checkout can regenerate baselines.
@@ -31,9 +33,12 @@ Console.WriteLine($"Issue references matched: {baseline.Summary.IssueReferencesM
 Console.WriteLine($"Files touched matched: {baseline.Summary.FilesTouchedMatchCount}/{baseline.Summary.CaseCount}");
 Console.WriteLine($"Exact matches: {baseline.Summary.ExactMatchCount}/{baseline.Summary.CaseCount}");
 Console.WriteLine($"Average token F1: {baseline.Summary.AverageTokenOverlapF1:0.0000}");
+Console.WriteLine($"Average Microsoft F1: {baseline.Summary.AverageMicrosoftF1:0.0000}");
+Console.WriteLine($"Average Microsoft BLEU: {baseline.Summary.AverageMicrosoftBLEU:0.0000}");
+Console.WriteLine($"Average Microsoft GLEU: {baseline.Summary.AverageMicrosoftGLEU:0.0000}");
 
 // Runs every deterministic check and reference metric for one saved PatchProse output.
-static StageOneCaseResult Evaluate(StageOneDatasetCase testCase)
+static async Task<StageOneCaseResult> EvaluateAsync(StageOneDatasetCase testCase)
 {
     var output = new PatchProseOutput(
         testCase.GeneratedOutput.CommitMessage,
@@ -42,6 +47,9 @@ static StageOneCaseResult Evaluate(StageOneDatasetCase testCase)
     var issueReferences = PatchProseChecks.CompareIssueReferences(testCase.Diff, output);
     var filesTouched = PatchProseChecks.CompareFilesTouched(testCase.Diff, output);
     var tokenOverlap = ReferenceTextMetrics.TokenOverlapF1(
+        testCase.GeneratedOutput.PullRequestDescription,
+        testCase.ReferenceDescription);
+    var microsoftNlp = await MicrosoftNlpReferenceMetrics.EvaluateAsync(
         testCase.GeneratedOutput.PullRequestDescription,
         testCase.ReferenceDescription);
 
@@ -54,6 +62,7 @@ static StageOneCaseResult Evaluate(StageOneDatasetCase testCase)
         filesTouched.IsMatch,
         ReferenceTextMetrics.ExactMatch(testCase.GeneratedOutput.PullRequestDescription, testCase.ReferenceDescription),
         new StageOneTokenOverlapResult(tokenOverlap.Precision, tokenOverlap.Recall, tokenOverlap.F1),
+        microsoftNlp,
         issueReferences.MissingIssues,
         issueReferences.UnexpectedIssues,
         filesTouched.MissingFiles,
@@ -92,6 +101,54 @@ internal sealed record StageOneDataset(
 
         return JsonSerializer.Deserialize<StageOneDataset>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web))
             ?? throw new InvalidOperationException($"Unable to load dataset from {path}.");
+    }
+}
+
+internal static class MicrosoftNlpReferenceMetrics
+{
+    // Evaluates generated text against a reference using Microsoft's non-LLM NLP evaluators.
+    public static async Task<StageOneMicrosoftNlpResult> EvaluateAsync(string generated, string reference)
+    {
+        return new StageOneMicrosoftNlpResult(
+            await EvaluateF1Async(generated, reference),
+            await EvaluateBLEUAsync(generated, reference),
+            await EvaluateGLEUAsync(generated, reference));
+    }
+
+    // Runs Microsoft's F1Evaluator for direct comparison with our hand-rolled token F1.
+    private static async Task<double> EvaluateF1Async(string generated, string reference)
+    {
+        var evaluator = new F1Evaluator();
+        var result = await evaluator.EvaluateAsync(
+            generated,
+            chatConfiguration: null!,
+            additionalContext: [new F1EvaluatorContext(reference)]);
+
+        return result.Get<NumericMetric>(F1Evaluator.F1MetricName).Value ?? 0;
+    }
+
+    // Runs Microsoft's BLEU evaluator as an additional reference-response similarity metric.
+    private static async Task<double> EvaluateBLEUAsync(string generated, string reference)
+    {
+        var evaluator = new BLEUEvaluator();
+        var result = await evaluator.EvaluateAsync(
+            generated,
+            chatConfiguration: null!,
+            additionalContext: [new BLEUEvaluatorContext(reference)]);
+
+        return result.Get<NumericMetric>(BLEUEvaluator.BLEUMetricName).Value ?? 0;
+    }
+
+    // Runs Microsoft's GLEU evaluator as a sentence-level variant of BLEU.
+    private static async Task<double> EvaluateGLEUAsync(string generated, string reference)
+    {
+        var evaluator = new GLEUEvaluator();
+        var result = await evaluator.EvaluateAsync(
+            generated,
+            chatConfiguration: null!,
+            additionalContext: [new GLEUEvaluatorContext(reference)]);
+
+        return result.Get<NumericMetric>(GLEUEvaluator.GLEUMetricName).Value ?? 0;
     }
 }
 
@@ -151,9 +208,12 @@ internal sealed record StageOneBaselineSummary(
     int IssueReferencesMatchCount,
     int FilesTouchedMatchCount,
     int ExactMatchCount,
-    double AverageTokenOverlapF1)
+    double AverageTokenOverlapF1,
+    double AverageMicrosoftF1,
+    double AverageMicrosoftBLEU,
+    double AverageMicrosoftGLEU)
 {
-    // Aggregates pass counts and average token F1 across the full dataset.
+    // Aggregates pass counts and average reference-metric scores across the full dataset.
     public static StageOneBaselineSummary Create(IReadOnlyCollection<StageOneCaseResult> results)
     {
         return new StageOneBaselineSummary(
@@ -162,7 +222,10 @@ internal sealed record StageOneBaselineSummary(
             results.Count(result => result.IssueReferencesMatch),
             results.Count(result => result.FilesTouchedMatch),
             results.Count(result => result.ExactMatch),
-            Math.Round(results.Average(result => result.TokenOverlap.F1), 4));
+            Math.Round(results.Average(result => result.TokenOverlap.F1), 4),
+            Math.Round(results.Average(result => result.MicrosoftNlp.F1), 4),
+            Math.Round(results.Average(result => result.MicrosoftNlp.BLEU), 4),
+            Math.Round(results.Average(result => result.MicrosoftNlp.GLEU), 4));
     }
 }
 
@@ -175,6 +238,7 @@ internal sealed record StageOneCaseResult(
     bool FilesTouchedMatch,
     bool ExactMatch,
     StageOneTokenOverlapResult TokenOverlap,
+    StageOneMicrosoftNlpResult MicrosoftNlp,
     IReadOnlyCollection<string> MissingIssues,
     IReadOnlyCollection<string> UnexpectedIssues,
     IReadOnlyCollection<string> MissingFiles,
@@ -185,3 +249,8 @@ internal sealed record StageOneTokenOverlapResult(
     double Precision,
     double Recall,
     double F1);
+
+internal sealed record StageOneMicrosoftNlpResult(
+    double F1,
+    double BLEU,
+    double GLEU);

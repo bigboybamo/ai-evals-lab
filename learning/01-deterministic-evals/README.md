@@ -37,7 +37,7 @@ Written at the *end* of the stage, not the start. Keep it concise.
 - [x] Baseline saved — `evals/baselines/patchprose-stage-01-baseline.json`
 - [x] At least one failure case reproduced — CRLF harness bug (Experiment 0)
 - [x] Reference metrics implemented — hand-rolled exact match + token F1
-- [ ] Cross-checked against `Microsoft.Extensions.AI.Evaluation.NLP`
+- [x] Cross-checked against `Microsoft.Extensions.AI.Evaluation.NLP`
 
 ### Learn
 

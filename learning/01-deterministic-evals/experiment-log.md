@@ -187,3 +187,46 @@ What baseline movement should count as an improvement, and what movement should 
 ## Article Use
 
 Use this as the first evidence table: cheap checks catch concrete structural failures, while reference metrics expose how brittle text matching is for prose.
+
+---
+
+# Experiment 4 — Cross-check with Microsoft.Extensions.AI.Evaluation.NLP
+
+**Date:** 2026-08-19
+
+## Setup
+
+Added `Microsoft.Extensions.AI.Evaluation.NLP` to `PatchProse.Evals` and calculated Microsoft
+F1, BLEU, and GLEU for each generated PR description against its reference description.
+
+The package resolved to prerelease version `10.9.0-preview.1.26411.16`.
+
+## Result
+
+```text
+Cases: 8
+Average token F1: 0.3859
+Average Microsoft F1: 0.3728
+Average Microsoft BLEU: 0.0814
+Average Microsoft GLEU: 0.1190
+```
+
+## Observation
+
+Microsoft's F1 and the hand-rolled token F1 are close but not identical. That is acceptable:
+the cross-check shows they are measuring the same general idea, while also proving that exact
+implementation details such as tokenization matter.
+
+BLEU and GLEU are much lower on these short PR descriptions. That makes them poor headline
+metrics for this stage, but useful evidence that different reference metrics can disagree
+even on the same generated/reference pair.
+
+## Question
+
+If reference metrics disagree, which one should drive the baseline threshold, and should any
+of them gate PatchProse prose quality?
+
+## Article Use
+
+This is the practical "do not worship the number" example. A metric score is a measurement
+choice, not a universal truth about output quality.
