@@ -32,6 +32,9 @@ public sealed class OpenAiPatchProseClient : IDisposable
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
     }
 
+    /// <summary>
+    /// Sends a git diff to the LLM and returns the parsed commit message and PR description.
+    /// </summary>
     public async Task<PatchProseOutput> GenerateAsync(string diff, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(diff))
@@ -92,6 +95,9 @@ public sealed class OpenAiPatchProseClient : IDisposable
         }
     }
 
+    /// <summary>
+    /// Extracts the JSON payload from an OpenAI chat-completion response.
+    /// </summary>
     private static PatchProseOutput ParseChatCompletion(string responseBody)
     {
         using var responseJson = JsonDocument.Parse(responseBody);

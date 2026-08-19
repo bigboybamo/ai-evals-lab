@@ -4,6 +4,9 @@ namespace PatchProse;
 
 public static class GitDiffReader
 {
+    /// <summary>
+    /// Reads staged and unstaged git diff output from the requested repository.
+    /// </summary>
     public static string Read(string repositoryPath)
     {
         if (string.IsNullOrWhiteSpace(repositoryPath))
@@ -19,6 +22,9 @@ public static class GitDiffReader
             new[] { staged, unstaged }.Where(diff => !string.IsNullOrWhiteSpace(diff)));
     }
 
+    /// <summary>
+    /// Executes git diff with an optional argument such as --cached.
+    /// </summary>
     private static string RunGitDiff(string repositoryPath, string? argument = null)
     {
         var startInfo = new ProcessStartInfo

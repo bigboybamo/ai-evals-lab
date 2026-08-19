@@ -49,6 +49,9 @@ public static partial class ReferenceTextMetrics
         return new TokenOverlapScore(precision, recall, f1);
     }
 
+    /// <summary>
+    /// Splits text into lowercase word-like tokens used by the overlap metric.
+    /// </summary>
     private static IReadOnlyList<string> Tokenize(string text)
     {
         return WordRegex()
@@ -57,6 +60,9 @@ public static partial class ReferenceTextMetrics
             .ToArray();
     }
 
+    /// <summary>
+    /// Counts duplicate token occurrences so repeated words affect overlap correctly.
+    /// </summary>
     private static Dictionary<string, int> CountTokens(IEnumerable<string> tokens)
     {
         var counts = new Dictionary<string, int>(StringComparer.Ordinal);

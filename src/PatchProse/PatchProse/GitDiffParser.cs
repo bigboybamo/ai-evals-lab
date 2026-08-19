@@ -4,6 +4,9 @@ namespace PatchProse;
 
 public static partial class GitDiffParser
 {
+    /// <summary>
+    /// Extracts normalized file paths from git diff headers.
+    /// </summary>
     public static IReadOnlySet<string> ExtractTouchedFiles(string diff)
     {
         var files = new SortedSet<string>(StringComparer.Ordinal);
@@ -17,6 +20,9 @@ public static partial class GitDiffParser
         return files;
     }
 
+    /// <summary>
+    /// Extracts issue references such as #123 or CART-42 from text.
+    /// </summary>
     public static IReadOnlySet<string> ExtractIssueReferences(string text)
     {
         var issues = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -29,6 +35,9 @@ public static partial class GitDiffParser
         return issues;
     }
 
+    /// <summary>
+    /// Normalizes a diff path and adds it unless it represents a deleted or created side.
+    /// </summary>
     private static void AddPath(ISet<string> files, string path)
     {
         if (path == "/dev/null")

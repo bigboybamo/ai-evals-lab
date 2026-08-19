@@ -9,6 +9,9 @@ public sealed class PatchProseGenerator
         _client = client;
     }
 
+    /// <summary>
+    /// Reads the current git diff from a repository and asks the LLM to describe it.
+    /// </summary>
     public async Task<PatchProseOutput> GenerateFromGitDiffAsync(
         string repositoryPath,
         CancellationToken cancellationToken = default)
